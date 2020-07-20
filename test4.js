@@ -1,15 +1,8 @@
 const playwright = require("playwright");
 const { Agent } = require("http");
-let conor;
 
 (async () => {
-  for (const browserType of ["chromium", "firefox", "webkit"]) {
-    if (browserType != webkit) {
-      deviceList = [];
-    } else {
-      deviceList = [];
-    }
-
+  for (const browserType of ["chromium"]) {
     const browser = await playwright[browserType].launch({ headless: false });
     const context = await browser.newContext({
       viewport: {
@@ -49,7 +42,7 @@ let conor;
       await delay(10000);
       await page.click("#bottom_bar_start_topic");
 
-      await delay(2000);
+      await delay(5000);
       await page.click(".player-nav--next-slide");
 
       //await page.click("#butNext");
@@ -67,6 +60,7 @@ let conor;
       count += 1;
 
       // await page.click("#butNext");
+      await delay(4000);
       await page.click(".next-button");
     }
     console.log("--------------------END OF BROWSERTYPE---------------------");

@@ -3,7 +3,7 @@ const { Agent } = require("http");
 
 (async () => {
   for (const browserType of ["chromium"]) {
-    const browser = await playwright[browserType].launch({ headless: false });
+    const browser = await playwright[browserType].launch();
     const context = await browser.newContext({
       viewport: {
         width: 1536,

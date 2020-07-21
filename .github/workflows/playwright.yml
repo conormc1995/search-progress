@@ -33,4 +33,3 @@ jobs:
       # replace below with command you want to run, example for running a script below
       # - run: node myScript.js
       - run: npm test-browsers.js
-      #-store_test_results

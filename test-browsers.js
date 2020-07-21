@@ -12,6 +12,7 @@ const { Agent } = require("http");
     });
     const page = await context.newPage();
 
+    //login user
     await page.goto("https://develop.alison.com");
     await page.$eval(
       "input[name=email]",

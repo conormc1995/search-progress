@@ -12,6 +12,6 @@ jobs:
             - run: npm install
             - run: npm test-browsers.js
 workflows:
-  build-and-test:
+  search-progress-workflow:
     jobs:
       - test-browsers-job

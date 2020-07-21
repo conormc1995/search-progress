@@ -33,8 +33,7 @@ const { Agent } = require("http");
     let spanElement;
     let topicName;
     console.log("-----------------------------------------------------");
-    console.log("Browser Type:");
-    console.log(browserType);
+    console.log("Browser Type: " + browserType);
     console.log("Results:");
     while (count < 5) {
       //await page.click("#reminders_open");

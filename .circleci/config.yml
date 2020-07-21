@@ -2,7 +2,7 @@ version: 2.1
 orbs:
   node: circleci/node@1.1.6
 jobs:
-  test-browsers-job:
+  test-devices-job:
     executor:
       name: node/default
     steps:
@@ -10,10 +10,9 @@ jobs:
       - node/with-cache:
           steps:
             - run: npm install
-            - run: node test-browsers.js
-            - store_test_results:
-    path: test-results
+            - run: node test-devices.js
+
 workflows:
   search-progress-workflow:
     jobs:
-      - test-browsers-job
+      - test-devices-job

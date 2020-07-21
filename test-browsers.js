@@ -12,9 +12,7 @@ const { Agent } = require("http");
     });
     const page = await context.newPage();
 
-    await page.goto("https://stg-test.alison.com/about/deleteTracksForConor");
-    await delay(2000);
-
+    //Log in user
     await page.goto("https://develop.alison.com");
     await page.$eval(
       "input[name=email]",
@@ -22,9 +20,19 @@ const { Agent } = require("http");
     );
     await page.$eval("input[name=password]", (el) => (el.value = "Galway12"));
     await page.$eval("input[type=submit]", (el) => el.click());
-
     await delay(4000);
 
+    //clear user tracks
+    await page.goto("https://develop.alison.com/admin/users/16849349");
+    await page.click("//html/body/div[2]/section[3]/div/div/div/ul/li[2]/a");
+    await page.click(
+      "//html/body/div[2]/section[3]/div/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[8]/a"
+    );
+    await delay(1000);
+    await page.click("//html/body/div[3]/div/div/div[3]/button[2]");
+    await delay(2000);
+
+    //start course
     await page.goto("https://develop.alison.com/resume/courses/1851");
 
     //go through a module
@@ -40,12 +48,15 @@ const { Agent } = require("http");
       //await page.click("#reminders_open");
 
       await delay(10000);
+      //start course button (1)
       await page.click("#bottom_bar_start_topic");
-
       await delay(5000);
+
+      //await page.click("//html/body/div[5]/div[3]/div/ul[1]/li/a/span[1]");
       await page.click(".player-nav--next-slide");
 
-      //await page.click("#butNext");
+      //click next slide (2)
+      //await page.click("//html/body/div[6]/div[2]/a[4]");
       await delay(2000);
       progress = await page.$(".module-progress");
 

@@ -3,13 +3,11 @@ const { devices } = require("playwright");
 const { Agent } = require("http");
 
 (async () => {
-  for (const browserType of ["chromium", "webkit"]) {
+  for (const browserType of ["webkit"]) {
     if (browserType == "chromium") {
       deviceList = [
         "Blackberry PlayBook",
-        "Blackberry PlayBook landscape",
         "BlackBerry Z30",
-        "BlackBerry Z30 landscape",
         "Galaxy Note 3",
         "Galaxy Note 3 landscape",
         "Galaxy Note II",
@@ -89,17 +87,16 @@ const { Agent } = require("http");
     }
     for (let deviceName of deviceList) {
       const testDevice = devices[deviceName];
-      console.log(deviceName);
+
       const browser = await playwright[browserType].launch({ headless: false });
       const context = await browser.newContext({
         ...testDevice,
       });
       const page = await context.newPage();
 
-      await page.goto("https://stg-test.alison.com/about/deleteTracksForConor");
-      await delay(2000);
-
+      await delay(5000);
       await page.goto("https://develop.alison.com");
+      await delay(5000);
       await page.$eval(
         "input[name=email]",
         (el) => (el.value = "conormcglockenspiel@gmail.com")
@@ -107,47 +104,64 @@ const { Agent } = require("http");
       await page.$eval("input[name=password]", (el) => (el.value = "Galway12"));
       await page.$eval("input[type=submit]", (el) => el.click());
 
-      await delay(4000);
+      await delay(5000);
+
+      //clear user tracks
+      await page.goto("https://develop.alison.com/admin/users/16849349");
+      await page.click("//html/body/div[2]/section[3]/div/div/div/ul/li[2]/a");
+      await page.click(
+        "//html/body/div[2]/section[3]/div/div/div/div/div[2]/div/div[2]/div/table/tbody/tr/td[8]/a"
+      );
+      await delay(1000);
+      await page.click("//html/body/div[3]/div/div/div[3]/button[2]");
+      await delay(2000);
 
       await page.goto("https://develop.alison.com/resume/courses/1851");
 
       //go through a module
       let count = 0;
       let progress;
-      let spanElement;
-      let topicName;
+      let spanElement; //element for module progress % number
+
       console.log("-----------------------------------------------------");
-      console.log("Browser Type:");
-      console.log(browserType);
-      console.log("Results:");
-      while (count < 5) {
-        //await page.click("#reminders_open");
+      console.log("Browser Type:" + browserType);
+      console.log("Device: " + deviceName);
 
-        await delay(10000);
-        ("");
-        await page.click("#player_button_right");
+      //cycle through 7 topics and ensure module progress is updating as necessary
+      while (count < 6) {
+        //Click start button on a topic
+        try {
+          await delay(10000);
+          const startButton = await page.$("#player_button_right");
+          await page.evaluate((el) => el.click(), startButton);
 
-        await delay(8000);
+          //Click next Slide on a topic
+          const frame = page.frame("iframe");
+          await delay(10000);
+          const nextButton = await frame.$("//html/body/div/div/button[2]");
+          await delay(5000);
+          await frame.evaluate((el) => el.click(), nextButton);
 
-        await page.click("#butNext");
-        console.log("clicked once");
+          await delay(2000);
 
-        //await page.click("#butNext");
-        await delay(2000);
-        progress = await page.$(".module-progress");
+          //Grab module progress score and ensure it is increasing
+          progress = await page.$(".module-progress");
 
-        spanElement = await progress.getProperty("innerText");
-        spanElement = await spanElement.jsonValue();
-        //var progressNumber = spanElement.replace(/^\D+/g, "");
-        var progressNumber = spanElement.replace(/\D/g, "");
-        console.log("Progress is: " + spanElement);
-        if (progressNumber <= count) {
-          console.log("PROGRESS ISSUE");
+          spanElement = await progress.getProperty("innerText");
+          spanElement = await spanElement.jsonValue();
+          var progressNumber = spanElement.replace(/\D/g, "");
+          console.log("Progress is: " + spanElement);
+          if (progressNumber <= count) {
+            console.log("Module Progress not increasing for Topic" + count);
+          }
+          count += 1;
+
+          //Navigate to next topic and continue cycle
+          await frame.evaluate((el) => el.click(), nextButton);
+        } catch (e) {
+          console.log(e);
+          break;
         }
-        count += 1;
-
-        // await page.click("#butNext");
-        await page.click("//html/body/div/div/button[2]");
       }
       console.log(
         "--------------------END OF BROWSERTYPE---------------------"

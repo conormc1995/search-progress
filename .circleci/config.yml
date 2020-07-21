@@ -11,6 +11,8 @@ jobs:
           steps:
             - run: npm install
             - run: node test-browsers.js
+            - store_test_results:
+    path: test-results
 workflows:
   search-progress-workflow:
     jobs:

@@ -52,7 +52,9 @@ const { Agent } = require("http");
     for (let deviceName of deviceList) {
       const testDevice = devices[deviceName];
 
-      const browser = await playwright[browserType].launch();
+      const browser = await playwright[browserType].launch({
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      });
       const context = await browser.newContext({
         ...testDevice,
       });

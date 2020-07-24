@@ -1,0 +1,22 @@
+{
+  "name": "search-progress",
+  "version": "1.0.0",
+  "description": "course progress",
+  "main": "test-devices.js",
+  "scripts": {
+    "test": "node"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/conormc1995/search-progress.git"
+  },
+  "author": "conor",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/conormc1995/search-progress/issues"
+  },
+  "homepage": "https://github.com/conormc1995/search-progress#readme",
+  "dependencies": {
+    "playwright": "^1.2.1"
+  }
+}

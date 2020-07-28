@@ -2,8 +2,12 @@ const playwright = require("playwright");
 const { devices } = require("playwright");
 const { Agent } = require("http");
 
+/*
+Check course progress is increasing for every device and browser
+
+*/
 (async () => {
-  for (const browserType of ["chromium"]) {
+  for (const browserType of ["chromium", "webkit"]) {
     if (browserType == "chromium") {
       deviceList = [
         "Blackberry PlayBook",
@@ -49,17 +53,28 @@ const { Agent } = require("http");
         "iPhone 11 Pro Max",
       ];
     }
+
+    /*
+----------------------------------------------------------------------
+    <Set up List of Devices, Cycle through each device>
+
+
+    */
     for (let deviceName of deviceList) {
       const testDevice = devices[deviceName];
 
       const browser = await playwright[browserType].launch({
-        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        headless: false,
       });
-      const context = await browser.newContext({
-        ...testDevice,
-      });
+      const context = await browser.newContext({ ...testDevice });
       const page = await context.newPage();
 
+      /*
+    --------------------------------------------------------------------  
+      Sign into user account
+      
+
+     */
       await delay(5000);
       await page.goto("https://develop.alison.com");
       await delay(5000);
@@ -69,10 +84,13 @@ const { Agent } = require("http");
       );
       await page.$eval("input[name=password]", (el) => (el.value = "Galway12"));
       await page.$eval("input[type=submit]", (el) => el.click());
-
       await delay(5000);
 
-      //clear user tracks
+      /*
+-----------------------------------------------------------------------
+      //clear user tracks for course progress of course [1851]
+
+      */
       await page.goto("https://develop.alison.com/admin/users/16849349");
       await page.click("//html/body/div[2]/section[3]/div/div/div/ul/li[2]/a");
       await page.click(
@@ -84,44 +102,61 @@ const { Agent } = require("http");
 
       await page.goto("https://develop.alison.com/resume/courses/1851");
 
-      //go through a module
+      /*
+      -----------------------------------------------------------------
+      //cycle through 7 topics and ensure module progress is updating as necessary
+
+      1. Navigate to course
+
+      2. Start Loop
+      --> [Click Start
+          Click Next Slide
+          Grab Module Progress and ensure it's increasing
+          Click Next Topic]
+      
+      3. Console Log Results
+
+
+      */
+
       let count = 0;
+      let countProgress = -1;
       let progress;
       let spanElement; //element for module progress % number
 
-      console.log("-----------------------------------------------------");
-      console.log("Browser Type:" + browserType);
-      console.log("Device: " + deviceName);
+      console.log("------------------------------------------------<br><br>");
+      console.log("Browser Type: " + browserType);
+      console.log("Device: " + testDevice);
 
-      //cycle through 7 topics and ensure module progress is updating as necessary
       while (count < 6) {
-        //Click start button on a topic
         try {
-          await delay(10000);
-          const startButton = await page.$("#player_button_right");
-          await page.evaluate((el) => el.click(), startButton);
-
-          //Click next Slide on a topic
+          //Wait for ad
+          await delay(12000);
+          //Click start button on a topic
+          await page.click("#player_button_right");
+          await delay(5000);
           const frame = page.frame("iframe");
-          await delay(10000);
+          await delay(5000);
+
           const nextButton = await frame.$("//html/body/div/div/button[2]");
           await delay(5000);
-          await frame.evaluate((el) => el.click(), nextButton);
 
-          await delay(2000);
+          //Next Slide
+          await frame.evaluate((el) => el.click(), nextButton);
 
           //Grab module progress score and ensure it is increasing
           progress = await page.$(".module-progress");
-
           spanElement = await progress.getProperty("innerText");
           spanElement = await spanElement.jsonValue();
           var progressNumber = spanElement.replace(/\D/g, "");
           console.log("Progress is: " + spanElement);
-          if (progressNumber <= count) {
+          if (progressNumber <= countProgress) {
             console.log("Module Progress not increasing for Topic" + count);
           }
+          countProgress = progressNumber;
           count += 1;
 
+          await delay(3500);
           //Navigate to next topic and continue cycle
           await frame.evaluate((el) => el.click(), nextButton);
         } catch (e) {
@@ -130,13 +165,14 @@ const { Agent } = require("http");
         }
       }
       console.log(
-        "--------------------END OF BROWSERTYPE---------------------"
+        "--------------------END OF BROWSERTYPE & DEVICE---------------------<br><br>"
       );
       await browser.close();
     }
   }
 })();
 
+//used to add delays for ads and slow loading elements
 function delay(time) {
   return new Promise(function (resolve) {
     setTimeout(resolve, time);

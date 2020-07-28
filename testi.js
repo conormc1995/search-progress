@@ -3,7 +3,7 @@ const { devices } = require("playwright");
 const { Agent } = require("http");
 
 (async () => {
-  for (const browserType of ["chromium"]) {
+  for (const browserType of ["webkit"]) {
     if (browserType == "chromium") {
       deviceList = [
         "Blackberry PlayBook",
@@ -52,7 +52,7 @@ const { Agent } = require("http");
     for (let deviceName of deviceList) {
       const testDevice = devices[deviceName];
 
-      const browser = await playwright[browserType].launch();
+      const browser = await playwright[browserType].launch({ headless: false });
       const context = await browser.newContext({
         ...testDevice,
       });

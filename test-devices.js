@@ -64,7 +64,7 @@ Check course progress is increasing for every device and browser
       const testDevice = devices[deviceName];
 
       const browser = await playwright[browserType].launch({
-        headless: false,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
       });
       const context = await browser.newContext({ ...testDevice });
       const page = await context.newPage();
